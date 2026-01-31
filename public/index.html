@@ -308,22 +308,26 @@
         // Lấy giờ từ NTP server
         async function initNTP() {
             try {
-                const clientBefore = Date.now();
+                const t0 = Date.now(); // Client gửi
                 const res = await fetch('/api/time', {
                     signal: AbortSignal.timeout(3000)
                 });
                 const data = await res.json();
-                const clientAfter = Date.now();
-
-                const serverTs = data.milliseconds;
-                const clientMid = (clientBefore + clientAfter) / 2;
-                timeOffset = serverTs - clientMid;
+                const t3 = Date.now(); // Client nhận
                 
+                const t1 = data.receiveTime; // Server nhận
+                const t2 = data.sendTime;    // Server gửi
+                
+                // Tính offset theo thuật toán NTP chuẩn
+                const offset = ((t1 - t0) + (t2 - t3)) / 2;
+                const delay = (t3 - t0) - (t2 - t1);
+                
+                console.log(`Offset: ${offset.toFixed(2)}ms, Delay: ${delay.toFixed(2)}ms`);
+                
+                timeOffset = offset;
                 serverConnected = true;
                 document.getElementById('errorBox').style.display = 'none';
                 document.getElementById('timeBox').style.display = 'block';
-                
-                console.log('✓ NTP synced, offset:', timeOffset.toFixed(0), 'ms');
             } catch (err) {
                 serverConnected = false;
                 document.getElementById('errorBox').style.display = 'block';
@@ -332,6 +336,7 @@
                 console.log('NTP không khả dụng');
             }
         }
+
 
         function adjustOffset(amount) {
             tempOffset += amount;

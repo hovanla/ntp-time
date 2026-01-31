@@ -37,12 +37,18 @@ function getNTPTime(serverIndex = 0) {
 }
 
 app.get('/api/time', async (req, res) => {
+    const receiveTime = Date.now(); // T1: Server nhận request
+    
     try {
         const date = await getNTPTime();
+        const sendTime = Date.now(); // T2: Server gửi response
+        
         res.json({
             datetime: date.toISOString(),
             unixtime: Math.floor(date.getTime() / 1000),
-            milliseconds: date.getTime()
+            milliseconds: date.getTime(),
+            receiveTime: receiveTime,  // Thêm
+            sendTime: sendTime          // Thêm
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
