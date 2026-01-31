@@ -1,409 +1,455 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Flash Sale Timer</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
-        }
-        
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 15px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 500px;
+        width: 100%;
+      }
+
+      h1 {
+        text-align: center;
+        color: #667eea;
+        margin-bottom: 20px;
+        font-size: 24px;
+      }
+
+      .time-display {
+        background: #f7f7f7;
+        border-radius: 15px;
+        padding: 25px 12px; /* ← Giảm padding ngang từ 20px → 12px */
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .label {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 10px;
+      }
+
+      #clock {
+        font-size: 52px;
+        font-family: "Courier New", monospace;
+        color: #333;
+        font-weight: bold;
+        line-height: 1.2;
+        letter-spacing: 2px;
+      }
+
+      .error-message {
+        background: #f8d7da;
+        border: 2px solid #dc3545;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        text-align: center;
+        color: #721c24;
+      }
+
+      .error-message h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+
+      .error-message p {
+        font-size: 14px;
+        margin: 5px 0;
+      }
+
+      .offset-section {
+        background: #fff3cd;
+        border: 2px solid #ffc107;
+        border-radius: 15px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+
+      .offset-section h3 {
+        color: #856404;
+        margin-bottom: 15px;
+        font-size: 18px;
+        text-align: center;
+      }
+
+      .offset-display {
+        text-align: center;
+        margin: 15px 0;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 2px solid #dee2e6;
+      }
+
+      .offset-value {
+        font-size: 32px;
+        font-weight: bold;
+        color: #856404;
+        font-family: "Courier New", monospace;
+        line-height: 1;
+      }
+
+      .offset-label {
+        font-size: 11px;
+        color: #666;
+        margin-top: 6px;
+      }
+
+      .button-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 20px 0;
+      }
+
+      button {
+        padding: 18px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+        touch-action: manipulation;
+      }
+
+      button:active {
+        transform: scale(0.95);
+      }
+
+      .btn-adjust {
+        padding: 16px;
+        font-size: 15px;
+      }
+
+      .btn-positive {
+        background: #28a745;
+      }
+
+      .btn-negative {
+        background: #dc3545;
+      }
+
+      .btn-apply {
+        background: #667eea;
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 18px;
+      }
+
+      .btn-reset {
+        background: #6c757d;
+        width: 100%;
+        padding: 18px;
+      }
+
+      .input-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        align-items: stretch;
+      }
+
+      .input-group input {
+        flex: 1;
+        padding: 15px;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        font-size: 18px;
+        font-family: monospace;
+        text-align: center;
+      }
+
+      .input-group input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .alert {
+        padding: 12px;
+        border-radius: 8px;
+        margin: 15px 0;
+        font-size: 14px;
+        text-align: center;
+      }
+
+      .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      /* Mobile optimization */
+      @media (max-width: 480px) {
         .container {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 500px;
-            width: 100%;
+          padding: 20px;
         }
-        
+
         h1 {
-            text-align: center;
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 24px;
+          font-size: 22px;
         }
-        
+
         .time-display {
-            background: #f7f7f7;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
+          padding: 20px 10px; /* ← Giảm padding thêm */
         }
-        
-        .label {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 8px;
-        }
-        
+
         #clock {
-            font-size: 40px;
-            font-family: 'Courier New', monospace;
-            color: #333;
-            font-weight: bold;
-            line-height: 1.2;
+          font-size: min(44px, 10vw); /* ← Nhỏ hơn trên mobile */
+          letter-spacing: -1px; /* ← Thu hẹp */
         }
-        
-        .error-message {
-            background: #f8d7da;
-            border: 2px solid #dc3545;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #721c24;
-        }
-        
-        .error-message h3 {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-        
-        .error-message p {
-            font-size: 14px;
-            margin: 5px 0;
-        }
-        
-        .offset-section {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        
-        .offset-section h3 {
-            color: #856404;
-            margin-bottom: 15px;
-            font-size: 18px;
-            text-align: center;
-        }
-        
+
         .offset-display {
-            text-align: center;
-            margin: 20px 0;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            border: 2px solid #dee2e6;
+          padding: 12px;
+          margin: 12px 0;
         }
-        
+
         .offset-value {
-            font-size: 48px;
-            font-weight: bold;
-            color: #856404;
-            font-family: 'Courier New', monospace;
-            line-height: 1;
+          font-size: 28px;
         }
-        
+
         .offset-label {
-            font-size: 12px;
-            color: #666;
-            margin-top: 8px;
+          font-size: 10px;
         }
-        
+
         .button-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin: 20px 0;
+          gap: 10px;
         }
-        
-        button {
-            padding: 18px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            touch-action: manipulation;
-        }
-        
-        button:active {
-            transform: scale(0.95);
-        }
-        
+
         .btn-adjust {
-            padding: 16px;
-            font-size: 15px;
+          padding: 14px;
+          font-size: 14px;
         }
-        
-        .btn-positive {
-            background: #28a745;
+
+        button {
+          padding: 16px;
+          font-size: 15px;
         }
-        
-        .btn-negative {
-            background: #dc3545;
+      }
+
+      /* Extra small phones */
+      @media (max-width: 360px) {
+        #clock {
+          font-size: min(38px, 9vw);
         }
-        
-        .btn-apply {
-            background: #667eea;
-            width: 100%;
-            margin-bottom: 10px;
-            padding: 18px;
+
+        .offset-value {
+          font-size: 24px;
         }
-        
-        .btn-reset {
-            background: #6c757d;
-            width: 100%;
-            padding: 18px;
-        }
-        
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            align-items: stretch;
-        }
-        
-        .input-group input {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 18px;
-            font-family: monospace;
-            text-align: center;
-        }
-        
-        .input-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .alert {
-            padding: 12px;
-            border-radius: 8px;
-            margin: 15px 0;
-            font-size: 14px;
-            text-align: center;
-        }
-        
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        /* Mobile optimization */
-        @media (max-width: 480px) {
-            .container {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 22px;
-            }
-            
-            #clock {
-                font-size: 36px;
-            }
-            
-            .offset-value {
-                font-size: 42px;
-            }
-            
-            .button-grid {
-                gap: 10px;
-            }
-            
-            .btn-adjust {
-                padding: 14px;
-                font-size: 14px;
-            }
-            
-            button {
-                padding: 16px;
-                font-size: 15px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>⚡ Flash Sale Timer</h1>
-        
-        <!-- Hiển thị lỗi nếu không kết nối được server -->
-        <div id="errorBox" style="display: none;">
-            <div class="error-message">
-                <h3>❌ Không thể kết nối server NTP</h3>
-                <p>Vui lòng chạy server Node.js:</p>
-                <p><code>node server.js</code></p>
-            </div>
+      <h1>⚡ Flash Sale Timer</h1>
+
+      <!-- Hiển thị lỗi nếu không kết nối được server -->
+      <div id="errorBox" style="display: none">
+        <div class="error-message">
+          <h3>❌ Không thể kết nối server NTP</h3>
+          <p>Vui lòng chạy server Node.js:</p>
+          <p><code>node server.js</code></p>
         </div>
-        
-        <!-- Hiển thị giờ hiện tại -->
-        <div id="timeBox" style="display: none;">
-            <div class="time-display">
-                <div class="label">Thời gian hiện tại</div>
-                <div id="clock">--:--:--.---</div>
-            </div>
+      </div>
+
+      <!-- Hiển thị giờ hiện tại -->
+      <div id="timeBox" style="display: none">
+        <div class="time-display">
+          <div class="label">Thời gian hiện tại</div>
+          <div id="clock">--:--:--.---</div>
         </div>
-        
-        <!-- Phần bù giờ -->
-        <div class="offset-section">
-            <h3>⚙️ Điều chỉnh offset</h3>
-            
-            <div class="offset-display">
-                <div class="offset-value" id="currentOffset">--</div>
-                <div class="offset-label">milliseconds</div>
-            </div>
-            
-            <div class="button-grid">
-                <button class="btn-adjust btn-positive" onclick="adjustOffset(100)">+100</button>
-                <button class="btn-adjust btn-positive" onclick="adjustOffset(500)">+500</button>
-                <button class="btn-adjust btn-positive" onclick="adjustOffset(1000)">+1000</button>
-                <button class="btn-adjust btn-negative" onclick="adjustOffset(-100)">-100</button>
-                <button class="btn-adjust btn-negative" onclick="adjustOffset(-500)">-500</button>
-                <button class="btn-adjust btn-negative" onclick="adjustOffset(-1000)">-1000</button>
-            </div>
-            
-            <div class="input-group">
-                <input type="number" id="manualOffset" placeholder="Nhập số ms" inputmode="numeric">
-            </div>
-            
-            <button class="btn-apply" onclick="applyOffset()">💾 Áp dụng</button>
-            <button class="btn-reset" onclick="resetOffset()">🔄 Reset về 0</button>
+      </div>
+
+      <!-- Phần bù giờ -->
+      <div class="offset-section">
+        <h3>⚙️ Điều chỉnh offset</h3>
+
+        <div class="offset-display">
+          <div class="offset-value" id="currentOffset">--</div>
+          <div class="offset-label">milliseconds</div>
         </div>
-        
-        <div id="alertBox"></div>
+
+        <div class="button-grid">
+          <button class="btn-adjust btn-positive" onclick="adjustOffset(100)">
+            +100
+          </button>
+          <button class="btn-adjust btn-positive" onclick="adjustOffset(500)">
+            +500
+          </button>
+          <button class="btn-adjust btn-positive" onclick="adjustOffset(1000)">
+            +1000
+          </button>
+          <button class="btn-adjust btn-negative" onclick="adjustOffset(-100)">
+            -100
+          </button>
+          <button class="btn-adjust btn-negative" onclick="adjustOffset(-500)">
+            -500
+          </button>
+          <button class="btn-adjust btn-negative" onclick="adjustOffset(-1000)">
+            -1000
+          </button>
+        </div>
+
+        <div class="input-group">
+          <input
+            type="number"
+            id="manualOffset"
+            placeholder="Nhập số ms"
+            inputmode="numeric"
+          />
+        </div>
+
+        <button class="btn-apply" onclick="applyOffset()">💾 Áp dụng</button>
+        <button class="btn-reset" onclick="resetOffset()">🔄 Reset về 0</button>
+      </div>
+
+      <div id="alertBox"></div>
     </div>
-    
+
     <script>
-        let timeOffset = 0; // Offset từ NTP
-        let manualOffset = 0; // Offset thủ công
-        let tempOffset = 0; // Offset tạm thời (chưa áp dụng)
-        let serverConnected = false; // Trạng thái kết nối server
+      let timeOffset = 0; // Offset từ NTP
+      let manualOffset = 0; // Offset thủ công
+      let tempOffset = 0; // Offset tạm thời (chưa áp dụng)
+      let serverConnected = false; // Trạng thái kết nối server
 
-        // Load offset đã lưu từ localStorage
-        function loadSavedOffset() {
-            const saved = localStorage.getItem('flashSaleOffset');
-            if (saved !== null) {
-                manualOffset = parseInt(saved);
-                tempOffset = manualOffset;
-                // Chỉ hiển thị offset khi đã load
-                document.getElementById('currentOffset').textContent = tempOffset;
-            }
+      // Load offset đã lưu từ localStorage
+      function loadSavedOffset() {
+        const saved = localStorage.getItem("flashSaleOffset");
+        if (saved !== null) {
+          manualOffset = parseInt(saved);
+          tempOffset = manualOffset;
+          // Chỉ hiển thị offset khi đã load
+          document.getElementById("currentOffset").textContent = tempOffset;
         }
+      }
 
-        // Lấy giờ từ NTP server
-        async function initNTP() {
-            try {
-                const t0 = Date.now(); // Client gửi
-                const res = await fetch('/api/time', {
-                    signal: AbortSignal.timeout(3000)
-                });
-                const data = await res.json();
-                const t3 = Date.now(); // Client nhận
-                
-                const t1 = data.receiveTime; // Server nhận
-                const t2 = data.sendTime;    // Server gửi
-                
-                // Tính offset theo thuật toán NTP chuẩn
-                const offset = ((t1 - t0) + (t2 - t3)) / 2;
-                const delay = (t3 - t0) - (t2 - t1);
-                
-                console.log(`Offset: ${offset.toFixed(2)}ms, Delay: ${delay.toFixed(2)}ms`);
-                
-                timeOffset = offset;
-                serverConnected = true;
-                document.getElementById('errorBox').style.display = 'none';
-                document.getElementById('timeBox').style.display = 'block';
-            } catch (err) {
-                serverConnected = false;
-                document.getElementById('errorBox').style.display = 'block';
-                document.getElementById('timeBox').style.display = 'none';
-                timeOffset = 0;
-                console.log('NTP không khả dụng');
-            }
+      // Lấy giờ từ NTP server
+      async function initNTP() {
+        try {
+          const t0 = Date.now(); // Client gửi
+          const res = await fetch("/api/time", {
+            signal: AbortSignal.timeout(3000),
+          });
+          const data = await res.json();
+          const t3 = Date.now(); // Client nhận
+
+          const t1 = data.receiveTime; // Server nhận
+          const t2 = data.sendTime; // Server gửi
+
+          // Tính offset theo thuật toán NTP chuẩn
+          const offset = (t1 - t0 + (t2 - t3)) / 2;
+          const delay = t3 - t0 - (t2 - t1);
+
+          console.log(
+            `Offset: ${offset.toFixed(2)}ms, Delay: ${delay.toFixed(2)}ms`,
+          );
+
+          timeOffset = offset;
+          serverConnected = true;
+          document.getElementById("errorBox").style.display = "none";
+          document.getElementById("timeBox").style.display = "block";
+        } catch (err) {
+          serverConnected = false;
+          document.getElementById("errorBox").style.display = "block";
+          document.getElementById("timeBox").style.display = "none";
+          timeOffset = 0;
+          console.log("NTP không khả dụng");
         }
+      }
 
+      function adjustOffset(amount) {
+        tempOffset += amount;
+        updateOffsetDisplay();
+      }
 
-        function adjustOffset(amount) {
-            tempOffset += amount;
+      function applyOffset() {
+        manualOffset = tempOffset;
+        localStorage.setItem("flashSaleOffset", manualOffset);
+        showAlert(`Đã lưu: ${manualOffset}ms`);
+      }
+
+      function resetOffset() {
+        tempOffset = 0;
+        manualOffset = 0;
+        localStorage.removeItem("flashSaleOffset");
+        updateOffsetDisplay();
+        document.getElementById("manualOffset").value = "";
+        showAlert("Đã reset về 0");
+      }
+
+      function updateOffsetDisplay() {
+        document.getElementById("currentOffset").textContent = tempOffset;
+      }
+
+      function getAccurateNow() {
+        return new Date(Date.now() + timeOffset + manualOffset);
+      }
+
+      function updateClock() {
+        if (!serverConnected) return;
+
+        const now = getAccurateNow();
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        const seconds = String(now.getSeconds()).padStart(2, "0");
+        const ms = String(now.getMilliseconds()).padStart(3, "0");
+
+        document.getElementById("clock").textContent =
+          `${hours}:${minutes}:${seconds}.${ms}`;
+      }
+
+      function showAlert(message) {
+        const alertBox = document.getElementById("alertBox");
+        alertBox.innerHTML = `<div class="alert alert-success">${message}</div>`;
+        setTimeout(() => {
+          alertBox.innerHTML = "";
+        }, 2000);
+      }
+
+      // Input manual offset
+      document
+        .getElementById("manualOffset")
+        .addEventListener("change", function () {
+          const value = parseInt(this.value);
+          if (!isNaN(value)) {
+            tempOffset = value;
             updateOffsetDisplay();
-        }
-
-        function applyOffset() {
-            manualOffset = tempOffset;
-            localStorage.setItem('flashSaleOffset', manualOffset);
-            showAlert(`Đã lưu: ${manualOffset}ms`);
-        }
-
-        function resetOffset() {
-            tempOffset = 0;
-            manualOffset = 0;
-            localStorage.removeItem('flashSaleOffset');
-            updateOffsetDisplay();
-            document.getElementById('manualOffset').value = '';
-            showAlert('Đã reset về 0');
-        }
-
-        function updateOffsetDisplay() {
-            document.getElementById('currentOffset').textContent = tempOffset;
-        }
-
-        function getAccurateNow() {
-            return new Date(Date.now() + timeOffset + manualOffset);
-        }
-
-        function updateClock() {
-            if (!serverConnected) return;
-            
-            const now = getAccurateNow();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            const ms = String(now.getMilliseconds()).padStart(3, '0');
-            
-            document.getElementById('clock').textContent = 
-                `${hours}:${minutes}:${seconds}.${ms}`;
-        }
-
-        function showAlert(message) {
-            const alertBox = document.getElementById('alertBox');
-            alertBox.innerHTML = `<div class="alert alert-success">${message}</div>`;
-            setTimeout(() => {
-                alertBox.innerHTML = '';
-            }, 2000);
-        }
-
-        // Input manual offset
-        document.getElementById('manualOffset').addEventListener('change', function() {
-            const value = parseInt(this.value);
-            if (!isNaN(value)) {
-                tempOffset = value;
-                updateOffsetDisplay();
-                this.value = '';
-            }
+            this.value = "";
+          }
         });
 
-        // Khởi động
-        loadSavedOffset();
-        initNTP();
-        setInterval(updateClock, 10);
-        
-        // Re-sync NTP mỗi 5 phút (nếu server có)
-        setInterval(initNTP, 5 * 60 * 1000);
+      // Khởi động
+      loadSavedOffset();
+      initNTP();
+      setInterval(updateClock, 10);
+
+      // Re-sync NTP mỗi 5 phút (nếu server có)
+      setInterval(initNTP, 5 * 60 * 1000);
     </script>
-</body>
+  </body>
 </html>
